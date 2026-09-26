@@ -10,9 +10,11 @@
  
  | 编号 | 案例名称 | 影响范围 | 根因分类 | 状态 |
  | :--- | :--- | :--- | :--- | :--- |
- | **001** | [model_catalog_json 存在 UTF-8 BOM 导致假性“Unable to load sign-in requirements”](cases/001-model-catalog-utf8-bom-crash.md) | Codex Desktop 启动 / 登录检测 | 文本编码 / JSON 解析 | 已解决 |
- 
- ---
+| **001** | [model_catalog_json 存在 UTF-8 BOM 导致假性“Unable to load sign-in requirements”](cases/001-model-catalog-utf8-bom-crash.md) | Codex Desktop 启动 / 登录检测 | 文本编码 / JSON 解析 | 已解决 |
+| **002** | [Windows 环境下执行 Git 触网命令被 GCM 劫持弹出 GUI 对话框卡死](cases/002-windows-git-credential-manager-popup.md) | 自动化 Agent / CLI 执行环境 / Git 触网 | Git 凭据机制 / Win32 进程隔离 | 已解决 |
+| **003** | [Codex 混合登录态（官方 auth.json + 自建 CPA 网关）实现全功能原生体验与流量自主可控](cases/003-codex-hybrid-auth-cpa-architecture.md) | 客户端功能矩阵 / 模型路由 / 速率档位 | 架构双轨解耦 / 状态机判定 | 最佳实践 |
+
+---
  
  ## 常用排错脚本工具 (Scripts)
  
