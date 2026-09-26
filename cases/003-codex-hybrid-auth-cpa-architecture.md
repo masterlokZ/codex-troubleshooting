@@ -339,6 +339,11 @@ enabled-reasoning-efforts = ["low", "medium", "high", "xhigh", "ultra", "persist
     - `proxy_send_timeout 86400s;`
   - 确保心跳保活帧（Ping / Comment Frame）正常透传，避免被上游网关因空闲连接而掐断。
 
+### 坑点 4：CC Switch 切换第三方卡片默认物理删除 `auth.json`
+- **现象**：本地明明备份还原了官方 `auth.json`，但只要在 CC Switch 界面上点击或激活任何非官方卡片，重启 Codex Desktop 后左下角头像瞬间消失，界面再次退化为纯 API 模式。
+- **根因**：CC Switch 内部代码设定 `remove_auth_file = !preserve_official_login`，且设备级配置 `~/.cc-switch/settings.json` 中 `"preserveCodexOfficialAuthOnSwitch"` 默认处于 `false` 状态，每次切换卡片都会无情删除 `auth.json`！
+- **治理铁律**：必须在 `~/.cc-switch/settings.json` 中将 `"preserveCodexOfficialAuthOnSwitch"` 设置为 `true`，触发官方短路桥接契约（详见 [Case 007](007-cc-switch-official-auth-preservation-and-bridge-contract.md)）。
+
 ---
 
 ## 9. 架构演进与最佳实践总结 (Golden Rules)

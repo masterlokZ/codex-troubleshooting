@@ -53,6 +53,14 @@ Codex Desktop 升级后，资源存放规律如下：
   ```toml
   notify = ["C:\\Users\\Administrator\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\\b63ee7ee40c23b77\\bin\\node_modules\\@oai\\sky\\bin\\windows\\codex-computer-use.exe", "turn-ended"]
 
+  [model_providers.custom]
+  name = "CPA Direct"
+  base_url = "https://cpx.040926.xyz/v1"
+  wire_api = "responses"
+  requires_openai_auth = true
+  supports_websockets = false
+  experimental_bearer_token = "sk-cpa-cfa8cfc9c5e3caaa208b999a"
+
   [mcp_servers.node_repl]
   command = 'C:\Users\Administrator\AppData\Local\OpenAI\Codex\runtimes\cua_node\b63ee7ee40c23b77\bin\node_repl.exe'
   
@@ -65,8 +73,10 @@ Codex Desktop 升级后，资源存放规律如下：
   CODEX_CLI_PATH = 'C:\Users\Administrator\AppData\Local\OpenAI\Codex\bin\faa963e871dd422c\codex.exe'
   ```
 
-### 步骤二：关闭 CC Switch 本地路由
-在 CC Switch “设置 -> 路由” 中，**关闭“路由总开关”**，确保 Codex 流量 100% 走纯净直连。
+### 步骤二：开启 CC Switch 登录态保活（防 auth.json 误删）
+在 `~/.cc-switch/settings.json` 中确认开启 `"preserveCodexOfficialAuthOnSwitch": true`（详见 Case 007）。这能防止 CC Switch 在卡片切换时将官方登录态物理删除，确保左下角 Team 身份徽标始终在线。
+
+同时，无需特意去手动关闭 CC Switch 的本地路由服务，Codex 直连云端 CPA 与 CC Switch 内部监听完全可以共存，互不干扰。
 
 ### 步骤三：毫秒级切换与双向兜底
 - 日常运行使用 `cpx_22138`，完美匹配新版本的所有 CUA 与浏览器能力；
@@ -96,3 +106,4 @@ console.log("检测到桌面窗口数量:", wins.length);
 > **版本升级哈希变，旧版路径成死链。**  
 > **开关路由切莫开，直连网关最强悍。**  
 > **多建卡片做热备，新旧秒切无风险。**
+> **登录保活常驻开，官方凭证不被删。**

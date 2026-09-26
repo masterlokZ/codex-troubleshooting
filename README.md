@@ -16,6 +16,7 @@
 | **004** | [Windows 双层代理与 GeoFiles 智能分流网络环境配置与极速复原指南](cases/004-windows-dual-proxy-network-environment.md) | 网络基础设施 / 官方鉴权自动续期 / CPA 通信 | 代理链路 / 规则路由 / 双保险机制 | 最佳实践 |
 | **005** | [Codex Desktop 版本升级路径失效与 CC Switch 多版本配置档案热备切换实战](cases/005-codex-version-upgrade-and-cc-switch-profile-management.md) | 版本升级热修 / CUA 路径对齐 / CC Switch 档案切换 | 路径死链排查 / 档案管理设计 / 零风险回退 | 最佳实践 |
 | **006** | [CC Switch 双重工作模式（配置同步器 vs 15721 本地路由接管）深度解耦与防死循环避坑指南](cases/006-cc-switch-config-sync-and-local-proxy-takeover.md) | CC Switch 供应商配置 / 15721 本地代理 / 请求路由 | 架构分层解耦 / 死循环雪崩防御 | 最佳实践 |
+| **007** | [CC Switch 切换第三方供应商导致官方 auth.json 物理删除与登录态丢失深度排查（源码级 preserve_official_auth 机制与短路桥接契约）](cases/007-cc-switch-official-auth-preservation-and-bridge-contract.md) | CC Switch 供应商切换 / auth.json 保留 / 登录态展示 | 源码级行为审计 / 桥接契约 / 密钥强校验 | 最佳实践 |
 
 ---
  
