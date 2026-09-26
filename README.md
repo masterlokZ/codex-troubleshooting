@@ -23,6 +23,7 @@
  ## 常用排错脚本工具 (Scripts)
  
  - [`scripts/check-and-strip-bom.ps1`](scripts/check-and-strip-bom.ps1): 检查并一键剥离指定文件（或目录下所有 JSON 文件）的前导 UTF-8 BOM 头。
+- [`scripts/restore-and-verify-auth.ps1`](scripts/restore-and-verify-auth.ps1): 一键自动化恢复官方登录态凭据（auth.json）、比对 SHA-256 哈希、解码 JWT 身份断言、并联动巡检 CC Switch 保活状态。
  
  ---
  

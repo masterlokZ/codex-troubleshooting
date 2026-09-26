@@ -103,62 +103,113 @@ CC Switch 源码实际上提供了一套非常精妙的解决方案——**保�
 
 ---
 
-## 4. 标准实战治理四步法 (Step-by-Step Remediation)
+## 4. 登录态极速恢复全流程操作指南 (Disaster Recovery Runbook)
 
-### 步骤一：开启 CC Switch 登录态保活并重启进程
-编辑 `C:\Users\Administrator\.cc-switch\settings.json`，将保活开关打开：
+当遭遇登录态丢失（左下角仅剩问号和齿轮图标、无用户头像与 Team 标识）时，按以下闭环步骤极速恢复：
 
-```json
-{
-  ...
-  "preserveCodexOfficialAuthOnSwitch": true,
-  ...
-}
-```
+### 步骤一：一键自愈与自动化健康体检（首选标准操作）
+知识库已将经过生产级验证的一键恢复脚本收录至 [scripts/restore-and-verify-auth.ps1](../scripts/restore-and-verify-auth.ps1)。该脚本会自动完成“定位备份 -> 物理复制 -> SHA256 校验 -> JWT 身份解码 -> CC Switch 保活状态检测与自动修复”五位一体全自动流水线：
 
-保存后，重启 `cc-switch.exe` 进程，确保内存储存的全局设置完成重载。
-
-### 步骤二：在 CC Switch 中重建/更新规范卡片
-在 CC Switch 数据库 `~/.cc-switch/cc-switch.db` 中，确保卡片包含以下完整要素：
-- **供应商名称**：`cpx_22138`
-- **副标题说明**：`Codex Desktop 26.924.22138 适配配置`
-- **API 密钥**：严格核实为 `sk-cpa-cfa8cfc9c5e3caaa208b999a`（绝不能填错或遗漏）
-- **接口地址**：`https://cpx.040926.xyz/v1`
-- **内部 TOML 模板**：
-  ```toml
-  # 唯一模型提供方：CPA 云端直连
-  [model_providers.custom]
-  name = "CPA Direct"
-  base_url = "https://cpx.040926.xyz/v1"
-  wire_api = "responses"
-  requires_openai_auth = true
-  supports_websockets = false
-  experimental_bearer_token = "sk-cpa-cfa8cfc9c5e3caaa208b999a"
-  ```
-
-### 步骤三：从黄金备份还原官方 `auth.json`
-确保官方凭证就位：
 ```powershell
-Copy-Item -LiteralPath "D:\codex-auth-backup\auth.json" -Destination "C:\Users\Administrator\.codex\auth.json" -Force
+pwsh -File D:\codex-troubleshooting\scripts\restore-and-verify-auth.ps1
 ```
 
-### 步骤四：重新校准并导出桌面备份 `22138.txt`
-重新生成干净无 BOM 的 `C:\Users\Administrator\Desktop\22138.txt`，使本地查阅备份与当前实机 `config.toml` 以及 CC Switch 数据库中的内容 100% 逐行对齐。
+**预期成功输出示例**：
+```text
+=== Codex 官方登录态极速恢复与健康体检工具 ===
+[定位备份] 选用黄金凭据来源: D:\codex-auth-backup\auth.json
+[凭据还原] 已成功将 auth.json 写入: C:\Users\Administrator\.codex\auth.json
+[哈希校验] SHA256 完全对齐: 6186A6BF2FB75C784A8C042D8461273158BD330582EBB7ECD817318EDE2BB21A
+[身份断言] 账号邮箱: zjh852485809@gmail.com | 订阅类型: team
+[防删免疫] CC Switch preserveCodexOfficialAuthOnSwitch = true (常驻免疫开启)
+=== 恢复完成！请重启 Codex Desktop 客户端即可看到左下角头像与登录态完全回归 ===
+```
+
+### 步骤二：纯手动命令行极速恢复（备用降级方案）
+若在极简环境或脚本不可用时，可直接在 PowerShell 7 中单行完成凭据还原与哈希对齐：
+
+```powershell
+# 1. 物理还原凭证
+Copy-Item -LiteralPath "D:\codex-auth-backup\auth.json" -Destination "C:\Users\Administrator\.codex\auth.json" -Force
+
+# 2. 核验哈希对齐
+(Get-FileHash "C:\Users\Administrator\.codex\auth.json").Hash
+```
+
+### 步骤三：客户端进程重启与内存重载
+Codex Desktop 的前端 Electron 与底层 `app-server` 核心服务在启动时一次性加载凭据并驻留内存。凭证还原落盘后，**必须重启一次客户端主程序**：
+1. 退出当前的 Codex Desktop 客户端窗口；
+2. 重新启动客户端，观察界面左下角红框区域：用户专属头像、邮箱与 Team 订阅标识即刻完整回归。
 
 ---
 
-## 5. 验证与实机验收成果 (Verification)
+## 5. 登录态防丢失长效预防与深度防御体系 (Prevention & Defense-in-Depth)
+
+为杜绝“修复一次好一阵，稍不留神又被删”的循环返工，建立以下五层长效深度防御体系：
+
+### 第一道防线：CC Switch 保活开关永久固化（源头阻断误删）
+- **核心机制**：在设备级配置文件 `C:\Users\Administrator\.cc-switch\settings.json` 中，必须永久固化：
+  ```json
+  {
+    "preserveCodexOfficialAuthOnSwitch": true
+  }
+  ```
+- **自检与重载**：若手工编辑了 `settings.json`，必须重启 `cc-switch.exe` 进程以重载内存中的全局设置；
+- **防版本更新重置**：每次 CC Switch 软件版本升级或重新配置后，将该配置项纳入首要检查清单。
+
+### 第二道防线：多介质冷热双备份策略（防止单点故障）
+官方 Team 登录凭据（`auth.json`）属于高价值控制面钥匙，严禁仅在 C 盘（系统盘）单点保存：
+1. **D 盘常驻热备份**：保存在 `D:\codex-auth-backup\auth.json`，作为本地日常一键自愈的首选源；
+2. **U 盘/移动介质离线冷备份**：保存在 `U:\codex-auth-backup\auth.json`，作为系统崩溃、重装系统或磁盘损坏时的终极保命副本；
+3. **备份文件防污染**：严禁直接在备份目录中用文本编辑器编辑 `auth.json`，严禁引入 UTF-8 BOM 头。
+
+### 第三道防线：三位一体配置强对齐规范（彻底消灭配置错位）
+必须确保以下三处配置关于认证与路由的参数 100% 逐行完全对齐：
+1. **CC Switch 数据库卡片**（`cc-switch.db` 中的 `cpx_22138` 记录）；
+2. **桌面查阅备份**（`C:\Users\Administrator\Desktop\22138.txt`，严格 UTF-8 无 BOM）；
+3. **本地生效配置**（`C:\Users\Administrator\.codex\config.toml`）。
+
+**三大核心参数法定标准**：
+```toml
+# 唯一模型提供方：CPA 云端直连
+[model_providers.custom]
+name = "CPA Direct"
+base_url = "https://cpx.040926.xyz/v1"
+wire_api = "responses"
+requires_openai_auth = true
+supports_websockets = false
+experimental_bearer_token = "sk-cpa-cfa8cfc9c5e3caaa208b999a"
+```
+- `requires_openai_auth = true`：用于在保活模式下点亮前端 Team 登录态徽标；
+- `experimental_bearer_token = "sk-cpa-cfa8cfc9c5e3caaa208b999a"`：用于底层请求短路官方鉴权，实际走私有网关。两者缺一不可。
+
+### 第四道防线：NTFS 文件系统只读加锁技巧（可选终极防御）
+若处于多人操作机台或极度担心某个未知第三方脚本强删 `auth.json`，可利用 Windows 原生文件属性对其施加只读保护：
+```powershell
+# 施加只读保护（防止任何普通文件删除）
+Set-ItemProperty -LiteralPath "C:\Users\Administrator\.codex\auth.json" -Name IsReadOnly -Value $true
+
+# 如需更新凭证时临时解锁
+Set-ItemProperty -LiteralPath "C:\Users\Administrator\.codex\auth.json" -Name IsReadOnly -Value $false
+```
+
+---
+
+## 6. 验证与实机验收成果 (Verification)
 
 1. **设置持久化检验**：核验 `~/.cc-switch/settings.json`，`preserveCodexOfficialAuthOnSwitch` 稳定为 `true`；
 2. **CPA 连通性与密钥验证**：
    使用 Node 原生 HTTP 携带 `sk-cpa-cfa8cfc9c5e3caaa208b999a` 向 `https://cpx.040926.xyz/v1/models` 发送请求，返回 **HTTP 200 OK**，成功解析 43 个模型池；
 3. **实机界面验收**：
    在 CC Switch 激活 `cpx_22138` 的前提下，重启 Codex Desktop，**左下角清晰展示用户头像与 Team 登录标识，登录态完全回归**！
+4. **一键自愈脚本实机检验**：
+   运行 `pwsh -File D:\codex-troubleshooting\scripts\restore-and-verify-auth.ps1`，秒级输出全绿健康诊断，JWT 身份断言解析完整。
 
 ---
 
-## 6. 避坑口诀与常驻红线
+## 7. 避坑口诀与常驻红线
 
 > **切莫盲猜登录丢，源码审查解烦忧。**  
 > **保活开关必须开，凭据常驻免遭害。**  
+> **多盘备份留后路，一键体检防脱钩。**  
 > **密钥对准短路桥，控制数据两相宜。**
